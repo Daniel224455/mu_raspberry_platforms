@@ -90,7 +90,12 @@
   DxeMemoryProtectionHobLib|MdeModulePkg/Library/MemoryProtectionHobLib/DxeMemoryProtectionHobLib.inf
   DeviceStateLib|MdeModulePkg/Library/DeviceStateLib/DeviceStateLib.inf
   SecurityLockAuditLib|MdeModulePkg/Library/SecurityLockAuditLibNull/SecurityLockAuditLibNull.inf
-  ResetSystemLib|MdeModulePkg/Library/ResetUtilityLib/ResetUtilityLib.inf
+  ResetUtilityLib|MdeModulePkg/Library/ResetUtilityLib/ResetUtilityLib.inf
+  HwResetSystemLib|ArmPkg/Library/ArmSmcPsciResetSystemLib/ArmSmcPsciResetSystemLib.inf
+  ResetSystemLib|ArmPkg/Library/ArmSmcPsciResetSystemLib/ArmSmcPsciResetSystemLib.inf
+  MemoryTypeInformationChangeLib|MdeModulePkg/Library/MemoryTypeInformationChangeLibNull/MemoryTypeInformationChangeLibNull.inf
+  PlatformBootManagerLib|MdeModulePkg/Library/PlatformBootManagerLibNull/PlatformBootManagerLibNull.inf
+  TlsLib|CryptoPkg/Library/TlsLibNull/TlsLibNull.inf
 
   UefiRuntimeLib|MdePkg/Library/UefiRuntimeLib/UefiRuntimeLib.inf
   OrderedCollectionLib|MdePkg/Library/BaseOrderedCollectionRedBlackTreeLib/BaseOrderedCollectionRedBlackTreeLib.inf
@@ -272,10 +277,8 @@
 [PcdsFeatureFlag.common]
   # Use the Vector Table location in CpuDxe. We will not copy the Vector Table at PcdCpuVectorBaseAddress
   gArmTokenSpaceGuid.PcdRelocateVectorTable|FALSE
-
   gEmbeddedTokenSpaceGuid.PcdPrePiProduceMemoryTypeInformationHob|TRUE
   gEfiMdeModulePkgTokenSpaceGuid.PcdTurnOffUsbLegacySupport|TRUE
-
   ## If TRUE, Graphics Output Protocol will be installed on virtual handle created by ConsplitterDxe.
   #  It could be set FALSE to save size.
   gEfiMdeModulePkgTokenSpaceGuid.PcdConOutGopSupport|TRUE
@@ -291,75 +294,22 @@
   gEfiMdePkgTokenSpaceGuid.PcdPerformanceLibraryPropertyMask|1
   gEfiMdePkgTokenSpaceGuid.PcdPostCodePropertyMask|0
   gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|320
-
   gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|$(DEBUG_PROPERTY_MASK)
-
-  #  DEBUG_INIT      0x00000001  // Initialization
-  #  DEBUG_WARN      0x00000002  // Warnings
-  #  DEBUG_LOAD      0x00000004  // Load events
-  #  DEBUG_FS        0x00000008  // EFI File system
-  #  DEBUG_POOL      0x00000010  // Alloc & Free (pool)
-  #  DEBUG_PAGE      0x00000020  // Alloc & Free (page)
-  #  DEBUG_INFO      0x00000040  // Informational debug messages
-  #  DEBUG_DISPATCH  0x00000080  // PEI/DXE/SMM Dispatchers
-  #  DEBUG_VARIABLE  0x00000100  // Variable
-  #  DEBUG_BM        0x00000400  // Boot Manager
-  #  DEBUG_BLKIO     0x00001000  // BlkIo Driver
-  #  DEBUG_NET       0x00004000  // SNP Driver
-  #  DEBUG_UNDI      0x00010000  // UNDI Driver
-  #  DEBUG_LOADFILE  0x00020000  // LoadFile
-  #  DEBUG_EVENT     0x00080000  // Event messages
-  #  DEBUG_GCD       0x00100000  // Global Coherency Database changes
-  #  DEBUG_CACHE     0x00200000  // Memory range cachability changes
-  #  DEBUG_VERBOSE   0x00400000  // Detailed debug messages that may
-  #                              // significantly impact boot performance
-  #  DEBUG_ERROR     0x80000000  // Error
   gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|$(DEBUG_PRINT_ERROR_LEVEL)
-
   gEfiMdePkgTokenSpaceGuid.PcdReportStatusCodePropertyMask|0x07
-
-  #
-  # Optional feature to help prevent EFI memory map fragments
-  # Turned on and off via: PcdPrePiProduceMemoryTypeInformationHob
-  # Values are in EFI Pages (4K). DXE Core will make sure that
-  # at least this much of each type of memory can be allocated
-  # from a single memory range. This way you only end up with
-  # maximum of two fragments for each type in the memory map
-  # (the memory used, and the free memory that was prereserved
-  # but not used).
-  #
   gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiACPIReclaimMemory|0
   gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiACPIMemoryNVS|0
   gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiReservedMemoryType|0
-!if $(SECURE_BOOT_ENABLE) == TRUE
-  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiRuntimeServicesData|600
-  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiRuntimeServicesCode|400
-  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiBootServicesCode|1500
-!else
   gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiRuntimeServicesData|300
   gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiRuntimeServicesCode|150
   gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiBootServicesCode|1000
-!endif
   gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiBootServicesData|12000
   gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiLoaderCode|20
   gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiLoaderData|0
-
   gEmbeddedTokenSpaceGuid.PcdDmaDeviceOffset|0xc0000000
   gEmbeddedTokenSpaceGuid.PcdDmaDeviceLimit|0xffffffff
-
   gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L"EDK2-DEV"
-
-!if $(SECURE_BOOT_ENABLE) == TRUE
-  # override the default values from SecurityPkg to ensure images from all sources are verified in secure boot
-  gEfiSecurityPkgTokenSpaceGuid.PcdOptionRomImageVerificationPolicy|0x04
-  gEfiSecurityPkgTokenSpaceGuid.PcdFixedMediaImageVerificationPolicy|0x04
-  gEfiSecurityPkgTokenSpaceGuid.PcdRemovableMediaImageVerificationPolicy|0x04
-!endif
-
   gEfiNetworkPkgTokenSpaceGuid.PcdAllowHttpConnections|TRUE
-
-  # Default platform supported RFC 4646 languages: (American) English
-  gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultPlatformLangCodes|"en-US"
 
 [LibraryClasses.common]
   ArmLib|ArmPkg/Library/ArmLib/ArmBaseLib.inf
@@ -390,23 +340,16 @@
 [PcdsFixedAtBuild.common]
   gArmPlatformTokenSpaceGuid.PcdCoreCount|4
   gArmTokenSpaceGuid.PcdVFPEnabled|1
-
   gArmPlatformTokenSpaceGuid.PcdCPUCorePrimaryStackSize|0x4000
   gEfiMdeModulePkgTokenSpaceGuid.PcdMaxVariableSize|0x2000
   gEfiMdeModulePkgTokenSpaceGuid.PcdMaxAuthVariableSize|0x2800
-
-  # Size of the region used by UEFI in permanent memory (Reserved 64MB)
   gArmPlatformTokenSpaceGuid.PcdSystemMemoryUefiRegionSize|0x04000000
-  #
   # 0x00000000 - 0x001F0000  FD (PcdFdBaseAddress, PcdFdSize)
   # 0x001F0000 - 0x00210000 DTB (PcdFdtBaseAddress, PcdFdtSize)
   # 0x00210000 - ...        RAM (PcdSystemMemoryBase, PcdSystemMemorySize)
-  #
   gArmTokenSpaceGuid.PcdSystemMemoryBase|0x00210000
   gArmTokenSpaceGuid.PcdSystemMemorySize|0x3fdf0000
-
   gRaspberryPiTokenSpaceGuid.PcdFdtSize|0x20000
-
   gEmbeddedTokenSpaceGuid.PcdPrePiCpuIoSize|40
 
   # UARTs
@@ -438,32 +381,16 @@
   #
   gBcm283xTokenSpaceGuid.PcdBcm2838RngBaseAddress|0x107d208000
 
-  ## Default Terminal Type
   ## 0-PCANSI, 1-VT100, 2-VT00+, 3-UTF8, 4-TTYTERM
   gEfiMdePkgTokenSpaceGuid.PcdDefaultTerminalType|4
 
-  gEfiMdeModulePkgTokenSpaceGuid.PcdResetOnMemoryTypeInformationChange|FALSE
-  gEfiMdeModulePkgTokenSpaceGuid.PcdBootManagerMenuFile|{ 0x21, 0xaa, 0x2c, 0x46, 0x14, 0x76, 0x03, 0x45, 0x83, 0x6e, 0x8a, 0xb6, 0xf4, 0x66, 0x23, 0x31 }
-
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"EDK2"
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSetNxForStack|TRUE
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"MU"
 
 [PcdsDynamicHii.common.DEFAULT]
-  #
-  # Display-related.
-  #
 
-  #
-  # Just enable native resolution by default.
-  #
   gRaspberryPiTokenSpaceGuid.PcdDisplayEnableScaledVModes|L"DisplayEnableScaledVModes"|gConfigDxeFormSetGuid|0x0|0x20
   gRaspberryPiTokenSpaceGuid.PcdDisplayEnableSShot|L"DisplayEnableSShot"|gConfigDxeFormSetGuid|0x0|1
-
-  #
-  # Reset-related.
-  #
   gRaspberryPiTokenSpaceGuid.PcdPlatformResetDelay|L"ResetDelay"|gRaspberryPiTokenSpaceGuid|0x0|0
-
   #
   # Device Tree and ACPI selection.
   #
@@ -472,16 +399,6 @@
   # 2 - SYSTEM_TABLE_MODE_DT
   #
   gRaspberryPiTokenSpaceGuid.PcdSystemTableMode|L"SystemTableMode"|gRpiPlatformFormSetGuid|0x0|0
-
-  #
-  # Common UEFI ones.
-  #
-  gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut|L"Timeout"|gEfiGlobalVariableGuid|0x0|5
-  #
-  # This is silly, but by pointing SetupConXXX and ConXXX PCDs to
-  # the same variables, I can use the graphical configuration to
-  # change the mode used by ConSplitter.
-  #
   gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutColumn|L"Columns"|gRaspberryPiTokenSpaceGuid|0x0|80
   gEfiMdeModulePkgTokenSpaceGuid.PcdConOutColumn|L"Columns"|gRaspberryPiTokenSpaceGuid|0x0|80
   gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutRow|L"Rows"|gRaspberryPiTokenSpaceGuid|0x0|25
@@ -489,9 +406,6 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdBootDiscoveryPolicy|L"BootDiscoveryPolicy"|gBootDiscoveryPolicyMgrFormsetGuid|0
 
 [PcdsDynamicDefault.common]
-  #
-  # Set video resolution for boot options and for text setup.
-  #
   gEfiMdeModulePkgTokenSpaceGuid.PcdVideoHorizontalResolution|0
   gEfiMdeModulePkgTokenSpaceGuid.PcdVideoVerticalResolution|0
   gEfiMdeModulePkgTokenSpaceGuid.PcdSetupVideoHorizontalResolution|640
@@ -505,10 +419,11 @@
 # Components Section - list of all EDK II Modules needed by this Platform
 #
 ################################################################################
+[LibraryClasses.common.SEC]
+  ArmMmuLib|ArmPkg/Library/ArmMmuLib/ArmMmuPeiLib.inf
+
 [Components.common]
-  #
-  # PEI Phase modules
-  #
+
   ArmPlatformPkg/PrePi/PeiUniCore.inf 
 
   #

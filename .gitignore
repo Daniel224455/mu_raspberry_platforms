@@ -1,0 +1,8 @@
+Build
+Mu-*.*
+*.bin 
+*.elf
+*:Zone.Identifier
+*.efi
+.vscode
+_pycache_

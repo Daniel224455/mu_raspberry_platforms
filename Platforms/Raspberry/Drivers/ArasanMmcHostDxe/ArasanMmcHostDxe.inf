@@ -24,7 +24,7 @@
   MdePkg/MdePkg.dec
   EmbeddedPkg/EmbeddedPkg.dec
   Silicon/Broadcom/BCM2712/BCM2712.dec
-  Platform/Raspberry/Raspberry.dec
+  Platforms/Raspberry/Raspberry.dec
 
 [LibraryClasses]
   PcdLib

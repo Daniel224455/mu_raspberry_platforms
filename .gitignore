@@ -5,4 +5,7 @@ Mu-*.*
 *:Zone.Identifier
 *.efi
 .vscode
-_pycache_
+__pycache__
+Platforms/Build
+Platforms/Conf
+Conf

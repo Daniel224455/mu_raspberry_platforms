@@ -2,23 +2,26 @@
 # Script to Build Raspberry Pi 5 UEFI firmware
 #
 # Copyright (c) Microsoft Corporation.
+# Copyright (c) DuoWoa Authors.
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-import datetime
-import logging
 import os
+import logging
+import io
+import shutil
+import glob
+import time
+import xml.etree.ElementTree
+import tempfile
 import uuid
-from io import StringIO
-from pathlib import Path
+import sys
 
 from edk2toolext.environment import shell_environment
 from edk2toolext.environment.uefi_build import UefiBuilder
 from edk2toolext.invocables.edk2_platform_build import BuildSettingsManager
-from edk2toolext.invocables.edk2_pr_eval import PrEvalSettingsManager
-from edk2toolext.invocables.edk2_setup import (RequiredSubmodule,
-                                               SetupSettingsManager)
+from edk2toolext.invocables.edk2_setup import SetupSettingsManager, RequiredSubmodule
 from edk2toolext.invocables.edk2_update import UpdateSettingsManager
-from edk2toolext.invocables.edk2_parse import ParseSettingsManager
+from edk2toolext.invocables.edk2_pr_eval import PrEvalSettingsManager
 from edk2toollib.utility_functions import RunCmd
 
     # ####################################################################################### #
@@ -31,25 +34,26 @@ class CommonPlatform():
     PackagesSupported = ("Pi5Pkg",)
     ArchSupported = ("AARCH64",)
     TargetsSupported = ("DEBUG", "RELEASE", "NOOPT")
-    Scopes = ('Pi5', 'gcc_aarch64_linux', 'edk2-build', 'cibuild', 'configdata')
-    WorkspaceRoot = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    Scopes = ('Pi5', 'gcc_aarch64_linux', 'edk2-build', 'cibuild')
+    WorkspaceRoot = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))    
     PackagesPath = (
-        "Platforms",
+        "Platforms/Raspberry",
         "mu_basecore",
-        "Common/mu",
-        "Common/mu_tiano",
+        "Common/mu_plus",
+        "Common/mu_tiano_plus",
         "Common/mu_oem_sample",
         "Silicon/Arm/mu_silicon_arm_tiano",
-        "Features/mu_feature_dfci",
+        "Silicon/Broadcom",
+        "Silicon/Raspberry",
         "Features/mu_feature_config",
-        "Silicon/Broadcom/BCM2712"
+        "Features/mu_feature_dfci"
     )
 
 
     # ####################################################################################### #
     #                         Configuration for Update & Setup                                #
     # ####################################################################################### #
-class SettingsManager(UpdateSettingsManager, SetupSettingsManager, PrEvalSettingsManager, ParseSettingsManager):
+class SettingsManager(UpdateSettingsManager, SetupSettingsManager, PrEvalSettingsManager):
 
     def GetPackagesSupported(self):
         ''' return iterable of edk2 packages supported by this build.
@@ -71,14 +75,13 @@ class SettingsManager(UpdateSettingsManager, SetupSettingsManager, PrEvalSetting
             If no RequiredSubmodules return an empty iterable
         """
         return [
-            RequiredSubmodule("Common/mu_oem_sample", True),
-            RequiredSubmodule("Common/mu_tiano_plus", True),
-            RequiredSubmodule("Common/mu_plus", True),
-            RequiredSubmodule("Features/mu_feature_config", True),
-            RequiredSubmodule("Features/mu_feature_dfci", True),
             RequiredSubmodule("mu_basecore", True),
-            #RequiredSubmodule("Platforms/OpensslPkg/Library/OpensslLib/openssl", True),
-            RequiredSubmodule("Silicon/Arm/MU_TIANO", True),
+            RequiredSubmodule("Common/mu_plus", True),
+            RequiredSubmodule("Common/mu_tiano_plus", True),
+            RequiredSubmodule("Common/mu_oem_sample", True),
+            RequiredSubmodule("Silicon/Arm/mu_silicon_arm_tiano", True),
+            RequiredSubmodule("Features/mu_feature_dfci", True),
+            RequiredSubmodule("Features/mu_feature_config", True),
         ]
 
     def SetArchitectures(self, list_of_requested_architectures):
@@ -142,7 +145,7 @@ class SettingsManager(UpdateSettingsManager, SetupSettingsManager, PrEvalSetting
     # ####################################################################################### #
     #                         Actual Configuration for Platform Build                         #
     # ####################################################################################### #
-class PlatformBuilder(UefiBuilder, BuildSettingsManager):
+class PlatformBuilder( UefiBuilder, BuildSettingsManager):
     def __init__(self):
         UefiBuilder.__init__(self)
 
@@ -161,6 +164,12 @@ class PlatformBuilder(UefiBuilder, BuildSettingsManager):
         if args.build_arch.upper() != "AARCH64":
             raise Exception("Invalid Arch Specified.  Please see comments in PlatformBuild.py::PlatformBuilder::AddCommandLineOptions")
 
+        shell_environment.GetBuildVars().SetValue(
+            "TARGET_ARCH", args.build_arch.upper(), "From CmdLine")
+
+        shell_environment.GetBuildVars().SetValue(
+            "ACTIVE_PLATFORM", "Pi5Pkg/Pi5.dsc", "From CmdLine")
+
     def GetWorkspaceRoot(self):
         ''' get WorkspacePath '''
         return CommonPlatform.WorkspaceRoot
@@ -178,28 +187,23 @@ class PlatformBuilder(UefiBuilder, BuildSettingsManager):
         ''' return tuple containing scopes that should be active for this process '''
         return CommonPlatform.Scopes
 
+    def GetOutputDirectory(self):
+        ''' Return the output directory for this platform '''
+        return self.env.GetValue("OUTPUT_DIRECTORY")
+
     def GetName(self):
         ''' Get the name of the repo, platform, or product being build '''
         ''' Used for naming the log file, among others '''
         return "Pi5Pkg"
 
     def GetLoggingLevel(self, loggerType):
-        """Get the logging level depending on logger type.
-
-        Args:
-            loggerType (str): type of logger being logged to
-
-        Returns:
-            (Logging.Level): The logging level
-
-        !!! note "loggerType possible values"
-            "base": lowest logging level supported
-
-            "con": logs to screen
-
-            "txt": logs to plain text file
-        """
-        return logging.INFO
+        ''' Get the logging level for a given type
+        base == lowest logging level supported
+        con  == Screen logging
+        txt  == plain text file logging
+        md   == markdown file logging
+        '''
+        return logging.DEBUG
         return super().GetLoggingLevel(loggerType)
 
     def SetPlatformEnv(self):
@@ -207,22 +211,18 @@ class PlatformBuilder(UefiBuilder, BuildSettingsManager):
         self.env.SetValue("PRODUCT_NAME", "Pi5", "Platform Hardcoded")
         self.env.SetValue("ACTIVE_PLATFORM", "Pi5Pkg/Pi5.dsc", "Platform Hardcoded")
         self.env.SetValue("TARGET_ARCH", "AARCH64", "Platform Hardcoded")
-        self.env.SetValue("TOOL_CHAIN_TAG", "CLANGPDB", "set default to clangpdb")
+        self.env.SetValue("TOOL_CHAIN_TAG", "CLANG38", "set default to clang38")
         self.env.SetValue("EMPTY_DRIVE", "FALSE", "Default to false")
         self.env.SetValue("RUN_TESTS", "FALSE", "Default to false")
         self.env.SetValue("SHUTDOWN_AFTER_RUN", "FALSE", "Default to false")
         # needed to make FV size build report happy
         self.env.SetValue("BLD_*_BUILDID_STRING", "Unknown", "Default")
-        # Default turn on build reporting.
+        # # Default turn on build reporting.
         self.env.SetValue("BUILDREPORTING", "TRUE", "Enabling build report")
         self.env.SetValue("BUILDREPORT_TYPES", "PCD DEPEX FLASH BUILD_FLAGS LIBRARY FIXED_ADDRESS HASH", "Setting build report types")
-        self.env.SetValue("BLD_*_MEMORY_PROTECTION", "TRUE", "Default")
         # Include the MFCI test cert by default, override on the commandline with "BLD_*_SHIP_MODE=TRUE" if you want the retail MFCI cert
         self.env.SetValue("BLD_*_SHIP_MODE", "FALSE", "Default")
-        #self.env.SetValue("CONF_AUTOGEN_INCLUDE_PATH", self.edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath("Platforms", "SurfaceDuoFamilyPkg", "Include"), "Platform Defined")
-        #self.env.SetValue("MU_SCHEMA_DIR", self.edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath("Platforms", "SurfaceDuoFamilyPkg", "CfgData"), "Platform Defined")
-        #self.env.SetValue("MU_SCHEMA_FILE_NAME", "SurfaceDuoFamilyPkgCfgData.xml", "Platform Hardcoded")
-
+        self.env.SetValue("BLD_*_WORKSPACE_ROOT", self.GetWorkspaceRoot(), "Default")
         return 0
 
     def PlatformPreBuild(self):
@@ -237,10 +237,9 @@ class PlatformBuilder(UefiBuilder, BuildSettingsManager):
 if __name__ == "__main__":
     import argparse
     import sys
-
-    from edk2toolext.invocables.edk2_platform_build import Edk2PlatformBuild
-    from edk2toolext.invocables.edk2_setup import Edk2PlatformSetup
     from edk2toolext.invocables.edk2_update import Edk2Update
+    from edk2toolext.invocables.edk2_setup import Edk2PlatformSetup
+    from edk2toolext.invocables.edk2_platform_build import Edk2PlatformBuild
     print("Invoking Stuart")
     print("     ) _     _")
     print("    ( (^)-~-(^)")

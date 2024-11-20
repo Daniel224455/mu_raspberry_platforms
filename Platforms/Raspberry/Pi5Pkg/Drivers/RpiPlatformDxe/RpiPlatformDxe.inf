@@ -25,11 +25,11 @@
   MdePkg/MdePkg.dec
   MdeModulePkg/MdeModulePkg.dec
   EmbeddedPkg/EmbeddedPkg.dec
-  Platform/RaspberryPi/RaspberryPi.dec
-  Platform/RaspberryPi/RPi5/RPi5.dec
+  Platforms/Raspberry/Raspberry.dec
+  Platforms/Raspberry/Pi5Pkg/Pi5.dec
   Silicon/Broadcom/BroadcomPkg.dec
-  Silicon/Broadcom/Bcm27xx/Bcm27xx.dec
-  Silicon/RaspberryPi/RpiSiliconPkg/RpiSiliconPkg.dec
+  Silicon/Broadcom/BCM2712/BCM2712.dec
+  Silicon/Raspberry/PiSiliconPkg/PiSiliconPkg.dec
 
 [LibraryClasses]
   AcpiLib

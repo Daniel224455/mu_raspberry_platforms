@@ -20,7 +20,7 @@
 [Packages]
   EmbeddedPkg/EmbeddedPkg.dec
   MdePkg/MdePkg.dec
-  Platform/Raspberry/Raspberry.dec
+  Platforms/Raspberry/Raspberry.dec
 
 [LibraryClasses]
   DebugLib

@@ -24,12 +24,12 @@
   EmbeddedPkg/EmbeddedPkg.dec
   ArmPkg/ArmPkg.dec
   ArmPlatformPkg/ArmPlatformPkg.dec
-  Platform/Raspberry/Raspberry.dec
+  Platforms/Raspberry/Raspberry.dec
 
 [LibraryClasses]
   DebugLib
   HobLib
-  ArmMmuLib
+  #ArmMmuLib
   ArmPlatformLib
 
 [Guids]

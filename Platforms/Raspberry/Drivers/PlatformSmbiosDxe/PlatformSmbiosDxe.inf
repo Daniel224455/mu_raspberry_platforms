@@ -27,7 +27,7 @@
   MdeModulePkg/MdeModulePkg.dec
   ArmPlatformPkg/ArmPlatformPkg.dec
   ArmPkg/ArmPkg.dec
-  Platform/Raspberry/Raspberry.dec
+  Platforms/Raspberry/Raspberry.dec
   EmbeddedPkg/EmbeddedPkg.dec
 
 [LibraryClasses]

@@ -38,8 +38,8 @@
   EmbeddedPkg/EmbeddedPkg.dec
   MdeModulePkg/MdeModulePkg.dec
   MdePkg/MdePkg.dec
-  Broadcom/BroadcomPkg.dec
-  Pi5Pkg/Pi5Pkg.dec
+  Silicon/Broadcom/BroadcomPkg.dec
+  Platforms/Raspberry/Pi5Pkg/Pi5.dec
 
 [FixedPcd]
   gArmTokenSpaceGuid.PcdArmArchTimerIntrNum

@@ -246,7 +246,7 @@ READ_LOCK_STATUS   = TRUE
   #
   INF MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe.inf
   INF MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResourceTableDxe.inf
-  INF RuleOverride = ACPITABLE Platform/Raspberry/Pi5Pkg/AcpiTables/AcpiTables.inf
+  INF RuleOverride = ACPITABLE Platforms/Raspberry/Pi5Pkg/AcpiTables/AcpiTables.inf
 
   #
   # SMBIOS Support
@@ -278,7 +278,7 @@ READ_LOCK_STATUS   = TRUE
   #
   # RNG
   #
-  INF Silicon/Broadcom/Bcm283x/Drivers/Bcm2838RngDxe/Bcm2838RngDxe.inf
+  INF Silicon/Broadcom/BCM2835/Drivers/Bcm2838RngDxe/Bcm2838RngDxe.inf
 
   #
   # PCI Support

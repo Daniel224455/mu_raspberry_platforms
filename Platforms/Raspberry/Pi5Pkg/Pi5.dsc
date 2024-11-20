@@ -26,6 +26,8 @@
   SKUID_IDENTIFIER               = DEFAULT
   FLASH_DEFINITION               = Platforms/Raspberry/$(PLATFORM_NAME)Pkg/$(PLATFORM_NAME).fdf
 
+  DEFINE DISABLE_DEBUG_MACRO_CHECK      = TRUE
+
   #
   # DEBUG_ASSERT_ENABLED       0x01
   # DEBUG_PRINT_ENABLED        0x02
@@ -83,6 +85,13 @@
   SortLib|MdeModulePkg/Library/UefiSortLib/UefiSortLib.inf
   ImagePropertiesRecordLib|MdeModulePkg/Library/ImagePropertiesRecordLib/ImagePropertiesRecordLib.inf
 
+  #pMU stuff
+  MemoryTypeInfoSecVarCheckLib|MdeModulePkg/Library/MemoryTypeInfoSecVarCheckLib/MemoryTypeInfoSecVarCheckLib.inf
+  DxeMemoryProtectionHobLib|MdeModulePkg/Library/MemoryProtectionHobLib/DxeMemoryProtectionHobLib.inf
+  DeviceStateLib|MdeModulePkg/Library/DeviceStateLib/DeviceStateLib.inf
+  SecurityLockAuditLib|MdeModulePkg/Library/SecurityLockAuditLibNull/SecurityLockAuditLibNull.inf
+  ResetSystemLib|MdeModulePkg/Library/ResetUtilityLib/ResetUtilityLib.inf
+
   UefiRuntimeLib|MdePkg/Library/UefiRuntimeLib/UefiRuntimeLib.inf
   OrderedCollectionLib|MdePkg/Library/BaseOrderedCollectionRedBlackTreeLib/BaseOrderedCollectionRedBlackTreeLib.inf
 
@@ -102,7 +111,7 @@
   # It is not possible to prevent the ARM compiler from inserting calls to intrinsic functions.
   # This library provides the instrinsic functions such a compiler may generate calls to.
   #
-  NULL|ArmPkg/Library/CompilerIntrinsicsLib/CompilerIntrinsicsLib.inf
+  #NULL|ArmPkg/Library/CompilerIntrinsicsLib/CompilerIntrinsicsLib.inf
 
   # Add support for GCC stack protector
   NULL|MdePkg/Library/BaseStackCheckLib/BaseStackCheckLib.inf
@@ -129,9 +138,9 @@
   # Cryptographic libraries
   RngLib|MdePkg/Library/DxeRngLib/DxeRngLib.inf
   IntrinsicLib|CryptoPkg/Library/IntrinsicLib/IntrinsicLib.inf
-  BaseCryptLib|CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
-  OpensslLib|CryptoPkg/Library/OpensslLib/OpensslLib.inf
-  TlsLib|CryptoPkg/Library/TlsLib/TlsLib.inf
+  BaseCryptLib|CryptoPkg/Library/BaseCryptLibNull/BaseCryptLibNull.inf
+  #OpensslLib|CryptoPkg/Library/OpensslLib/OpensslLib.inf
+  #TlsLib|CryptoPkg/Library/TlsLib/TlsLib.inf
 
   #
   # Uncomment (and comment out the next line) For RealView Debugger. The Standard IO window
@@ -179,10 +188,10 @@
 
   NonDiscoverableDeviceRegistrationLib|MdeModulePkg/Library/NonDiscoverableDeviceRegistrationLib/NonDiscoverableDeviceRegistrationLib.inf
 
-  Bcm2712GpioLib|Silicon/Broadcom/Bcm27xx/Library/Bcm2712GpioLib/Bcm2712GpioLib.inf
+  Bcm2712GpioLib|Silicon/Broadcom/BCM2712/Library/Bcm2712GpioLib/Bcm2712GpioLib.inf
 
-  PciHostBridgeLib|Silicon/Broadcom/Bcm27xx/Library/Bcm2712PciHostBridgeLib/Bcm2712PciHostBridgeLib.inf
-  PciSegmentLib|Silicon/Broadcom/Bcm27xx/Library/Bcm2712PciSegmentLib/PciSegmentLib.inf
+  PciHostBridgeLib|Silicon/Broadcom/BCM2712/Library/Bcm2712PciHostBridgeLib/Bcm2712PciHostBridgeLib.inf
+  PciSegmentLib|Silicon/Broadcom/BCM2712/Library/Bcm2712PciSegmentLib/PciSegmentLib.inf
 
 [LibraryClasses.common.SEC]
   PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
@@ -500,7 +509,7 @@
   #
   # PEI Phase modules
   #
-  ArmPlatformPkg/PrePi/PeiUniCore.inf
+  ArmPlatformPkg/PrePi/PeiUniCore.inf 
 
   #
   # DXE

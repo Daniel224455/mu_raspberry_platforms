@@ -37,7 +37,7 @@
   MdeModulePkg/MdeModulePkg.dec
   MdePkg/MdePkg.dec
   NetworkPkg/NetworkPkg.dec
-  Platform/Raspberry/Raspberry.dec
+  Platforms/Raspberry/Raspberry.dec
   Silicon/Broadcom/BCM2712/BCM2712.dec
   Silicon/Broadcom/BCM2835/BCM2835.dec
   Silicon/Broadcom/Drivers/Net/BcmNet.dec

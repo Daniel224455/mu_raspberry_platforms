@@ -11,11 +11,9 @@
 #include <Library/NonDiscoverableDeviceRegistrationLib.h>
 #include <Library/UefiLib.h>
 #include <Library/UefiBootServicesTableLib.h>
-
 #include <Protocol/BrcmStbSdhciDevice.h>
 #include <Protocol/NonDiscoverableDevice.h>
 #include <Protocol/SdMmcOverride.h>
-
 #include "BrcmStbSdhciDxe.h"
 
 STATIC
@@ -73,12 +71,13 @@ SdMmcNotifyPhase (
   }
 
   switch (PhaseType) {
-    case EdkiiSdMmcSetSignalingVoltage:
+    case EdkiiSdMmcUhsSignaling: // Updated to correct identifier
       if (PhaseData == NULL) {
         return EFI_INVALID_PARAMETER;
       }
       if (Device->SetSignalingVoltage != NULL) {
-        return Device->SetSignalingVoltage (Device, *(SD_MMC_SIGNALING_VOLTAGE *)PhaseData);
+        SD_MMC_SIGNALING_VOLTAGE Voltage = *(SD_MMC_SIGNALING_VOLTAGE *)PhaseData;
+        return Device->SetSignalingVoltage(Device, Voltage);
       }
       break;
 
@@ -105,10 +104,7 @@ StartDevice (
 {
   EFI_STATUS Status;
 
-  //
-  // Set the PHY DLL as clock source to support higher speed modes
-  // reliably.
-  //
+  // Set the PHY DLL as clock source to support higher speed modes reliably
   MmioAndThenOr32 (This->CfgAddress + SDIO_CFG_MAX_50MHZ_MODE,
                    ~SDIO_CFG_MAX_50MHZ_MODE_ENABLE,
                    SDIO_CFG_MAX_50MHZ_MODE_STRAP_OVERRIDE);
@@ -222,3 +218,4 @@ BrcmStbSdhciDxeInitialize (
 
   return Status;
 }
+

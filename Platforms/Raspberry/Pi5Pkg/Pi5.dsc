@@ -504,7 +504,7 @@
       gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|$(DEBUG_PROPERTY_MASK) & ~0x04
   }
   MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResourceTableDxe.inf
-  Platforms/Raspberry/Pi5Pkg/AcpiTables/AcpiTables.inf
+  #Platforms/Raspberry/Pi5Pkg/AcpiTables/AcpiTables.inf
 
   #
   # SMBIOS Support

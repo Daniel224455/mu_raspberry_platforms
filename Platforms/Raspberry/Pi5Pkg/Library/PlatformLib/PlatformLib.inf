@@ -24,7 +24,9 @@
   ArmPkg/ArmPkg.dec
   ArmPlatformPkg/ArmPlatformPkg.dec
   Silicon/Broadcom/BCM2712/BCM2712.dec
+  Silicon/Broadcom/BCM2835/BCM2835.dec
   Platforms/Raspberry/Pi5Pkg/Pi5.dec
+  Platforms/Raspberry/Raspberry.dec
 
 [LibraryClasses]
   ArmLib

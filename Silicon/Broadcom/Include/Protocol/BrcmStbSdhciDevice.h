@@ -18,6 +18,12 @@
 
 typedef struct _BRCMSTB_SDHCI_DEVICE_PROTOCOL BRCMSTB_SDHCI_DEVICE_PROTOCOL;
 
+// Define SD_MMC_SIGNALING_VOLTAGE if missing
+typedef enum {
+    SdMmcVoltage18V, // 1.8V
+    SdMmcVoltage33V, // 3.3V
+} SD_MMC_SIGNALING_VOLTAGE;
+
 typedef
 EFI_STATUS
 (EFIAPI *BRCMSTB_SDHCI_SET_SIGNALING_VOLTAGE) (
@@ -45,3 +51,4 @@ struct _BRCMSTB_SDHCI_DEVICE_PROTOCOL {
 extern EFI_GUID gBrcmStbSdhciDeviceProtocolGuid;
 
 #endif // __BRCMSTB_SDHCI_DEVICE_H__
+
